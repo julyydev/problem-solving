@@ -1,0 +1,16 @@
+// https://www.acmicpc.net/problem/2475
+// written by julyy
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    int n, sum = 0;
+    for (int i = 0; i < 5; i++) {
+        cin >> n;
+        sum += n * n;
+    }
+    cout << sum % 10;
+    
+    return 0;
+}
