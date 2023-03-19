@@ -1,6 +1,7 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#define FASTIO() ios_base::sync_with_stdio(false), cin.tie(NULL), cout.tie(NULL)
 using namespace std;
 
 int M, N, tomato_num = 0, max_day = 0;
@@ -42,6 +43,7 @@ int bfs(vector<Tomato> initial_tomato) {
 }
 
 int main() {
+    FASTIO();
     cin >> M >> N;
     graph.resize(N, vector<int>(M));
 
