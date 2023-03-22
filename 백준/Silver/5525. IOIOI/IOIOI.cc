@@ -8,15 +8,19 @@ int main() {
 
     for (int i = 0; i < M; i++) {
         if (s[i] == 'I') {
-            bool isSatisfied = true;
-            for (int j = i + 1; j <= i + 2 * N; j += 2) {
+            int j = i + 1;
+            while (1) {
                 if (j > M) break;
-                if (s[j] != 'O' || s[j + 1] != 'I') {
-                    isSatisfied = false;
-                    break;
-                }
+                if (s[j] != 'O' || s[j + 1] != 'I') break;
+                j += 2;
             }
-            if (isSatisfied) count++;
+
+            if (j - i >= 2 * N + 1) count += (j - i - 1) / 2 - N + 1;
+
+            if (s[j] == 'O')
+                i = j;
+            else
+                i = j - 1;
         }
     }
 
