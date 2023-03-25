@@ -35,8 +35,7 @@ bool isNear(Point p1, Point p2) {
 }
 
 int search_block(Point p) {
-    int sum = 0, maxSum = 0;
-    vector<int> possibleSum;
+    int sum = 0;
     vector<Point> points;
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
@@ -45,20 +44,17 @@ int search_block(Point p) {
         }
     }
 
+    int maxSum = sum;
     for (int i = 0; i < 8; i++) {
         Point next(p.x + dx[i], p.y + dy[i]);
         if (next.x < 0 || next.x >= N || next.y < 0 || next.y >= M) continue;
         for (auto p : points) {
             if (isNear(p, next)) continue;
-            if (graph[next.x][next.y] > graph[p.x][p.y])
-                possibleSum.push_back(sum - graph[p.x][p.y] +
-                                      graph[next.x][next.y]);
+            int diff = graph[next.x][next.y] - graph[p.x][p.y];
+            if (sum + diff > maxSum) maxSum = sum + diff;
         }
     }
 
-    possibleSum.push_back(sum);
-    for (auto ps : possibleSum)
-        if (ps > maxSum) maxSum = ps;
     return maxSum;
 }
 
