@@ -7,33 +7,27 @@ using namespace std;
 enum Direction { U, D, F, B, L, R };
 enum Color { w, y, r, o, g, b };
 
-string colorToString(Color color) {
-    string colors[6] = {"w", "y", "r", "o", "g", "b"};
+char colorToString(Color color) {
+    char colors[] = "wyrogb";
     return colors[color];
 }
 
-string directionToString(Direction direction) {
-    string directions[6] = {"U", "D", "F", "B", "L", "R"};
+char directionToString(Direction direction) {
+    char directions[] = "UDFBLR";
     return directions[direction];
 }
 
-string getColorAsDirection(Direction direction) {
-    string colors[6] = {"w", "y", "r", "o", "g", "b"};
+char getColorAsDirection(Direction direction) {
+    char colors[] = "wyrogb";
     return colors[direction];
 }
 
-Direction stringToDirection(string s_direction) {
-    if (s_direction == "U")
-        return U;
-    else if (s_direction == "D")
-        return D;
-    else if (s_direction == "F")
-        return F;
-    else if (s_direction == "B")
-        return B;
-    else if (s_direction == "L")
-        return L;
-    return R;
+Direction stringToDirection(char s_direction) {
+    char directions[] = "UDFBLR";
+    for (int i = 0; i < 6; i++) {
+        if (directions[i] == s_direction) return static_cast<Direction>(i);
+    }
+    return U;
 }
 
 class Cell {
@@ -85,25 +79,27 @@ class Corner {
 };
 
 class Face {
+    const vector<vector<Direction>> direction_graph = {
+        {B, R, F, L}, {F, R, B, L}, {U, R, D, L},
+        {U, L, D, R}, {U, F, D, B}, {U, B, D, F}};
     Direction base;
-    vector<Edge*> edgePointers;
-    vector<Corner*> cornerPointers;
+    vector<Edge*> edge_pointers;
+    vector<Corner*> corner_pointers;
 
    public:
-    Face(const Direction& base, vector<Edge>& edges, vector<Corner>& corners,
-         const vector<vector<Direction>>& direction_graph)
+    Face(const Direction& base, vector<Edge>& edges, vector<Corner>& corners)
         : base(base) {
-        edgePointers.resize(4);
+        edge_pointers.resize(4);
         for (Edge& edge : edges) {
             if (edge.isContainDirection(base)) {
                 auto it = find(direction_graph[base].begin(),
                                direction_graph[base].end(),
                                edge.getSubDirection(base));
-                edgePointers[distance(direction_graph[base].begin(), it)] =
+                edge_pointers[distance(direction_graph[base].begin(), it)] =
                     &edge;
             }
         }
-        cornerPointers.resize(4);
+        corner_pointers.resize(4);
         for (Corner& corner : corners) {
             if (corner.isContainDirection(base)) {
                 vector<Direction> ds = corner.getSubDirections(base);
@@ -114,23 +110,23 @@ class Face {
                     check *= (distance(direction_graph[base].begin(), it) + 1);
                 }
                 if (check == 2)
-                    cornerPointers[0] = &corner;
+                    corner_pointers[0] = &corner;
                 else if (check == 6)
-                    cornerPointers[1] = &corner;
+                    corner_pointers[1] = &corner;
                 else if (check == 12)
-                    cornerPointers[2] = &corner;
+                    corner_pointers[2] = &corner;
                 else
-                    cornerPointers[3] = &corner;
+                    corner_pointers[3] = &corner;
             }
         }
     }
-    void printFace(const vector<vector<Direction>>& direction_graph) {
-        vector<vector<string>> colors(3, vector<string>(3, "-"));
+    void printFace() {
+        vector<vector<char>> colors(3, vector<char>(3, '-'));
         colors[1][1] = getColorAsDirection(base);
 
-        for (Edge* edgePointer : edgePointers) {
+        for (Edge* edgePointer : edge_pointers) {
             vector<Cell> cells = edgePointer->getCells();
-            string c;
+            char c;
             int index;
             for (Cell cell : cells) {
                 if (cell.getDirection() == base) {
@@ -152,9 +148,9 @@ class Face {
                 colors[1][0] = c;
         }
 
-        for (Corner* cornerPointer : cornerPointers) {
+        for (Corner* cornerPointer : corner_pointers) {
             vector<Cell> cells = cornerPointer->getCells();
-            string c;
+            char c;
             int check = 1;
             for (Cell cell : cells) {
                 if (cell.getDirection() == base) {
@@ -185,9 +181,7 @@ class Face {
             cout << "\n";
         }
     }
-    Direction getNextDirection(
-        Direction target, bool isClockwise,
-        const vector<vector<Direction>>& direction_graph) {
+    Direction getNextDirection(Direction target, bool isClockwise) {
         if (isClockwise) {  // 시계
             auto it = find(direction_graph[base].begin(),
                            direction_graph[base].end(), target);
@@ -203,10 +197,9 @@ class Face {
             return *(it - 1);
         }
     }
-    void turn(bool isClockwise,
-              const vector<vector<Direction>>& direction_graph) {
+    void turn(bool isClockwise) {
         vector<vector<Cell>> newEdges;
-        for (Edge* edgePointer : edgePointers) {
+        for (Edge* edgePointer : edge_pointers) {
             Edge temp = *edgePointer;
             vector<Cell> cells = temp.getCells();
             vector<Cell> newCells;
@@ -216,20 +209,14 @@ class Face {
                 } else {
                     newCells.push_back(
                         {cell.getColor(),
-                         getNextDirection(cell.getDirection(), isClockwise,
-                                          direction_graph)});
+                         getNextDirection(cell.getDirection(), isClockwise)});
                 }
             }
             newEdges.push_back(newCells);
         }
-        int i = 1 + (isClockwise ? 2 : 0);
-        for (Edge* edgePointer : edgePointers) {
-            *edgePointer = newEdges[i % 4];
-            i++;
-        }
 
         vector<vector<Cell>> newCorners;
-        for (Corner* cornerPointer : cornerPointers) {
+        for (Corner* cornerPointer : corner_pointers) {
             vector<Cell> cells = cornerPointer->getCells();
             vector<Cell> newCells;
             for (Cell cell : cells) {
@@ -238,14 +225,19 @@ class Face {
                 } else {
                     newCells.push_back(
                         {cell.getColor(),
-                         getNextDirection(cell.getDirection(), isClockwise,
-                                          direction_graph)});
+                         getNextDirection(cell.getDirection(), isClockwise)});
                 }
             }
             newCorners.push_back(newCells);
         }
+
+        int i = 1 + (isClockwise ? 2 : 0);
+        for (Edge* edgePointer : edge_pointers) {
+            *edgePointer = newEdges[i % 4];
+            i++;
+        }
         i = 1 + (isClockwise ? 2 : 0);
-        for (Corner* cornerPointer : cornerPointers) {
+        for (Corner* cornerPointer : corner_pointers) {
             *cornerPointer = newCorners[i % 4];
             i++;
         }
@@ -263,41 +255,31 @@ class Cube {
         Corner({{w, U}, {r, F}, {g, L}}), Corner({{w, U}, {g, L}, {o, B}}),
         Corner({{y, D}, {o, B}, {g, L}}), Corner({{y, D}, {b, R}, {o, B}}),
         Corner({{y, D}, {r, F}, {b, R}}), Corner({{y, D}, {g, L}, {r, F}})};
-    const vector<vector<Direction>> graph = {{B, R, F, L}, {F, R, B, L},
-                                             {U, R, D, L}, {U, L, D, R},
-                                             {U, F, D, B}, {U, B, D, F}};
     vector<Face> faces;
 
    public:
     Cube() {
-        faces.push_back(Face(U, edges, corners, graph));
-        faces.push_back(Face(D, edges, corners, graph));
-        faces.push_back(Face(F, edges, corners, graph));
-        faces.push_back(Face(B, edges, corners, graph));
-        faces.push_back(Face(L, edges, corners, graph));
-        faces.push_back(Face(R, edges, corners, graph));
+        for (int i = 0; i < 6; i++)
+            faces.push_back(Face(static_cast<Direction>(i), edges, corners));
     }
-    void printUpSide() { faces[U].printFace(graph); }
+    void printUpSide() { faces[U].printFace(); }
     void turn(Direction base, bool isClockwise) {
-        faces[base].turn(isClockwise, graph);
+        faces[base].turn(isClockwise);
     }
-    void clockwise(Direction base) {}
-    void counterclockwise() {}
 };
 
 int main() {
     FASTIO();
     int T, n;
-    string cmd;
+    char face, clockwise;
     cin >> T;
 
     while (T--) {
         Cube cube{};
         cin >> n;
         while (n--) {
-            cin >> cmd;
-            cube.turn(stringToDirection(cmd.substr(0, 1)),
-                      cmd.substr(1, 1) == "+");
+            cin >> face >> clockwise;
+            cube.turn(stringToDirection(face), clockwise == '+');
         }
         cube.printUpSide();
     }
