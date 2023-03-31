@@ -14,22 +14,12 @@ int main() {
         }
 
         if (c == '+' || c == '-') {
-            if (stack.empty()) {
-                stack.push(c);
-                continue;
-            }
-
             while (!stack.empty() && stack.top() != '(') {
                 cout << stack.top();
                 stack.pop();
             }
             stack.push(c);
         } else if (c == '*' || c == '/') {
-            if (stack.empty()) {
-                stack.push(c);
-                continue;
-            }
-
             while (!stack.empty() && stack.top() != '(' &&
                    (stack.top() == '*' || stack.top() == '/')) {
                 cout << stack.top();
