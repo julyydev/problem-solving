@@ -11,19 +11,13 @@ int main() {
     vector<int> dp(N, 1);
     for (int i = 0; i < N; i++) cin >> arr[i];
 
+    int high = 1;
     for (int i = 1; i < N; i++) {
-        for (int j = 0; j < i; j++) {
-            if (arr[i] > arr[j])
-                dp[i] = max(dp[i], dp[j] + 1);
-            else if (arr[i] == arr[j])
-                dp[i] = max(dp[i], dp[j]);
-        }
+        for (int j = 0; j < i; j++)
+            if (arr[i] > arr[j]) dp[i] = max(dp[i], dp[j] + 1);
+        if (dp[i] > high) high = dp[i];
     }
-
-    int max = 0;
-    for (int i = 0; i < N; i++)
-        if (dp[i] > max) max = dp[i];
-    cout << max << "\n";
+    cout << high << "\n";
 
     return 0;
 }
