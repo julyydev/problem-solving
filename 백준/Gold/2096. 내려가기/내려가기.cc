@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <iostream>
 #include <vector>
 #define FASTIO() ios_base::sync_with_stdio(false), cin.tie(NULL), cout.tie(NULL)
@@ -8,7 +7,7 @@ int main() {
     FASTIO();
     int N;
     cin >> N;
-    vector<int> input(3), min_sum(3, 0), max_sum(3, 0), temp(3, 0);
+    vector<int> input(3), min_sum(3, 0), max_sum(3, 0), temp;
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < 3; j++) cin >> input[j];
         temp = min_sum;
