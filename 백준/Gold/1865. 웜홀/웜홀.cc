@@ -6,28 +6,24 @@ using namespace std;
 const int INF = 1e8;
 
 struct Edge {
-    int e, t;
+    int start, end, cost;
     Edge() {}
-    Edge(int e, int t) : e(e), t(t) {}
+    Edge(int start, int end, int cost) : start(start), end(end), cost(cost) {}
 };
 
-bool bellman_ford(const int& V, const int& E, const vector<vector<Edge>>& graph,
-                  int start) {
+bool bellman_ford(const int& V, const vector<Edge>& edges, int start) {
     vector<int> dist(V + 1, INF);
     dist[start] = 0;
-    for (int i = 0; i < V; i++) {
-        for (int j = 1; j <= V; j++) {
-            for (Edge cur : graph[j]) {
-                if (cur.t + dist[j] < dist[cur.e])
-                    dist[cur.e] = cur.t + dist[j];
-            }
+    for (int i = 0; i < V - 1; i++) {
+        for (const Edge& edge : edges) {
+            if (dist[edge.start] + edge.cost < dist[edge.end])
+                dist[edge.end] = dist[edge.start] + edge.cost;
         }
     }
 
-    for (int i = 1; i <= V; i++) {
-        for (Edge cur : graph[i])
-            if (cur.t + dist[i] < dist[cur.e]) return false;
-    }
+    for (const Edge& edge : edges)
+        if (dist[edge.start] + edge.cost < dist[edge.end]) return false;
+
     return true;
 }
 
@@ -37,21 +33,21 @@ int main() {
     cin >> T;
 
     while (T--) {
-        int N, M, W, s, e, t;
-        cin >> N >> M >> W;
-        vector<vector<Edge>> graph(N + 1);
+        int V, E, W, s, e, c;
+        cin >> V >> E >> W;
+        vector<Edge> edges;
 
-        for (int i = 0; i < M; i++) {
-            cin >> s >> e >> t;
-            graph[s].push_back({e, t});
-            graph[e].push_back({s, t});
+        for (int i = 0; i < E; i++) {
+            cin >> s >> e >> c;
+            edges.push_back({s, e, c});
+            edges.push_back({e, s, c});
         }
         for (int i = 0; i < W; i++) {
-            cin >> s >> e >> t;
-            graph[s].push_back({e, -t});
+            cin >> s >> e >> c;
+            edges.push_back({s, e, -c});
         }
 
-        cout << (bellman_ford(N, M, graph, 1) ? "NO\n" : "YES\n");
+        cout << (bellman_ford(V, edges, 1) ? "NO\n" : "YES\n");
     }
 
     return 0;
