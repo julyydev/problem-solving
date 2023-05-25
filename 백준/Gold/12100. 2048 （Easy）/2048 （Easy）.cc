@@ -127,16 +127,6 @@ class Board {
         }
     }
 
-    void print() {  // TEST:
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                cout << board[i][j] << " ";
-            }
-            cout << "\n";
-        }
-        cout << "\n";
-    }
-
     int getMaxNumber() {
         int max = 0;
         for (int i = 0; i < n; i++)
