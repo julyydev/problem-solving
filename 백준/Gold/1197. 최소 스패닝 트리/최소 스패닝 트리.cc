@@ -5,20 +5,19 @@
 using namespace std;
 
 struct Edge {
-    int start, end, weight;
+    int end, weight;
     Edge() {}
-    Edge(int start, int end, int weight)
-        : start(start), end(end), weight(weight) {}
+    Edge(int end, int weight) : end(end), weight(weight) {}
     bool operator<(const Edge& e) const { return weight > e.weight; }
 };
 
 int prim(const vector<vector<Edge>>& graph) {
     int sum = 0;
-    vector<bool> is_added(graph.size(), false);
     priority_queue<Edge> pq;
+    vector<bool> is_added(graph.size(), false);
 
     is_added[1] = true;
-    for (Edge edge : graph[1]) pq.push(edge);
+    for (const Edge& edge : graph[1]) pq.push(edge);
 
     while (!pq.empty()) {
         Edge cur = pq.top();
@@ -28,7 +27,7 @@ int prim(const vector<vector<Edge>>& graph) {
         is_added[cur.end] = true;
         sum += cur.weight;
 
-        for (Edge edge : graph[cur.end]) pq.push(edge);
+        for (const Edge& edge : graph[cur.end]) pq.push(edge);
     }
 
     return sum;
@@ -42,8 +41,8 @@ int main() {
 
     for (int i = 0; i < E; i++) {
         cin >> s >> e >> w;
-        graph[s].push_back({s, e, w});
-        graph[e].push_back({e, s, w});
+        graph[s].push_back({e, w});
+        graph[e].push_back({s, w});
     }
 
     cout << prim(graph) << "\n";
