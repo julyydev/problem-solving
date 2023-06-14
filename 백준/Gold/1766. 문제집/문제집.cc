@@ -24,14 +24,17 @@ class Graph {
         graph[u].outs.push_back(v);
     }
 
-    vector<int> topology_sort() {
-        vector<int> result(num_of_vertices + 1);
+    bool topology_sort(vector<int>& result) {
+        result.reserve(num_of_vertices + 1);
         priority_queue<int, vector<int>, greater<int>> pq;
         for (int i = 1; i <= num_of_vertices; i++)
             if (graph[i].in_degree == 0) pq.push(i);
 
         for (int i = 1; i <= num_of_vertices; i++) {
-            if (pq.empty()) return {};
+            if (pq.empty()) {
+                result.clear();
+                return false;
+            };
 
             int cur = pq.top();
             pq.pop();
@@ -41,7 +44,7 @@ class Graph {
                 if (--graph[out].in_degree == 0) pq.push(out);
         }
 
-        return result;
+        return true;
     }
 };
 
@@ -55,7 +58,8 @@ int main() {
         graph.add_edge(A, B);
     }
 
-    vector<int> result = graph.topology_sort();
+    vector<int> result;
+    graph.topology_sort(result);
     for (int i = 1; i <= N; i++) cout << result[i] << " ";
     cout << "\n";
 
