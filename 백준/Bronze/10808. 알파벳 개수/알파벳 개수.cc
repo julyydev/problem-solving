@@ -1,19 +1,16 @@
-// https://www.acmicpc.net/problem/10808
-// written by julyy
-
 #include <iostream>
+#include <vector>
 using namespace std;
 
 int main() {
-    int count[26] = {0,};
     string s;
     cin >> s;
-
-    for (int i = 0; i < s.length(); i++)
-        count[s[i] - 'a']++;
+    vector<int> dp(26, 0);
     
-    for (int i = 0; i < 26; i++)
-        cout << count[i] << ' ';
+    for (int i = 0; i < s.length(); i++) dp[s[i] - 'a']++;
+    
+    for (int i = 0; i < 26; i++) cout << dp[i] << " ";
+    cout << "\n";
     
     return 0;
 }
