@@ -18,21 +18,18 @@ int bfs(const int& start, const int& target) {
     while (!dq.empty()) {
         Data cur = dq.front();
         dq.pop_front();
+        isVisited[cur.point] = true;
 
         if (cur.point == target) return cur.time;
 
-        if (cur.point * 2 <= 100000 && !isVisited[cur.point * 2]) {
+        if (cur.point * 2 <= 100000 && !isVisited[cur.point * 2])
             dq.push_front({cur.point * 2, cur.time});
-            isVisited[cur.point * 2] = true;
-        }
-        if (cur.point + 1 <= 100000 && !isVisited[cur.point + 1]) {
+
+        if (cur.point + 1 <= 100000 && !isVisited[cur.point + 1])
             dq.push_back({cur.point + 1, cur.time + 1});
-            isVisited[cur.point + 1] = true;
-        }
-        if (cur.point - 1 >= 0 && !isVisited[cur.point - 1]) {
+
+        if (cur.point - 1 >= 0 && !isVisited[cur.point - 1])
             dq.push_back({cur.point - 1, cur.time + 1});
-            isVisited[cur.point - 1] = true;
-        }
     }
 
     return -1;
